@@ -1,4 +1,6 @@
-version: '3.8'
+networks:
+  trit-monitoring:
+    external: true
 
 services:
   node-exporter:
@@ -17,7 +19,7 @@ services:
       - '--path.sysfs=/host/sys'
       - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
     networks:
-      - metrics_net
+      - trit-monitoring
     labels:
       - "metrics.scrape=true"
       - "metrics.port=9100"
@@ -34,12 +36,7 @@ services:
       - /sys:/sys:ro
       - /var/lib/docker/:/var/lib/docker:ro
     networks:
-      - metrics_net
+      - trit-monitoring
     labels:
       - "metrics.scrape=true"
       - "metrics.port=8080"
-
-networks:
-  metrics_net:
-    name: metrics_net
-    driver: bridge
