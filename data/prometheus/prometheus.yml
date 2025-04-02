@@ -14,16 +14,22 @@ scrape_configs:
 - job_name: 'backend-1'
   metrics_path: '/backend1/actuator/prometheus'
   static_configs:
-  - targets: [ 'dev.trit.app' ]
-    labels:
-      instance: 'backend-qa-backend-1'
+  - targets: [ 'dev.trit.app:80' ]
+  relabel_configs:
+  - source_labels: [ __address__ ]
+    regex: '.*'
+    target_label: instance
+    replacement: 'backend-qa-backend-1'
 
 - job_name: 'backend-2'
   metrics_path: '/backend2/actuator/prometheus'
   static_configs:
-  - targets: [ 'dev.trit.app' ]
-    labels:
-      instance: 'backend-qa-backend-2'
+  - targets: [ 'dev.trit.app:80' ]
+  relabel_configs:
+  - source_labels: [ __address__ ]
+    regex: '.*'
+    target_label: instance
+    replacement: 'backend-qa-backend-2'
 
 - job_name: 'monitoring-host'
   static_configs:
@@ -31,8 +37,11 @@ scrape_configs:
     labels:
       instance: 'monitoring'
   - targets: [ 'ip-172-31-43-29.ap-northeast-2.compute.internal:9111' ]
-    labels:
-      instance: 'backend-qa-host'
+  relabel_configs:
+  - source_labels: [ __address__ ]
+    regex: 'ip-172-31-43-29.*'
+    target_label: instance
+    replacement: 'backend-qa-host'
 
 - job_name: 'monitoring-container'
   static_configs:
@@ -40,5 +49,8 @@ scrape_configs:
     labels:
       instance: 'monitoring'
   - targets: [ 'ip-172-31-43-29.ap-northeast-2.compute.internal:8085' ]
-    labels:
-      instance: 'backend-qa-docker'
+  relabel_configs:
+  - source_labels: [ __address__ ]
+    regex: 'ip-172-31-43-29.*'
+    target_label: instance
+    replacement: 'backend-qa-docker'
