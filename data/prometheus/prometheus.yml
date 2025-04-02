@@ -15,16 +15,30 @@ scrape_configs:
   metrics_path: '/backend1/actuator/prometheus'
   static_configs:
   - targets: [ 'dev.trit.app' ]
+    labels:
+      instance: 'backend-qa-backend-1'
 
 - job_name: 'backend-2'
   metrics_path: '/backend2/actuator/prometheus'
   static_configs:
   - targets: [ 'dev.trit.app' ]
+    labels:
+      instance: 'backend-qa-backend-2'
 
 - job_name: 'monitoring-host'
   static_configs:
   - targets: [ 'node-exporter:9100' ]
+    labels:
+      instance: 'monitoring'
+  - targets: [ 'ip-172-31-43-29.ap-northeast-2.compute.internal:9111' ]
+    labels:
+      instance: 'backend-qa-host'
 
 - job_name: 'monitoring-container'
   static_configs:
   - targets: [ 'cadvisor:8080' ]
+    labels:
+      instance: 'monitoring'
+  - targets: [ 'ip-172-31-43-29.ap-northeast-2.compute.internal:8085' ]
+    labels:
+      instance: 'backend-qa-docker'
