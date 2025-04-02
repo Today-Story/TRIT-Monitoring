@@ -5,65 +5,52 @@ global:
 
   external_labels:
     monitor: 'codelab-monitor'
-
   query_log_file: query_log_file.log
 
 rule_files:
 - "rule.yml"
 
 scrape_configs:
-# 🔹 Spring Boot 애플리케이션 - backend 1 & 2
-- job_name: 'backend'
+- job_name: 'backend-1'
+  metrics_path: '/backend1/actuator/prometheus'
   static_configs:
-  - targets:
-    - dev.trit.app:80
+  - targets: [ 'dev.trit.app:80' ]
   relabel_configs:
-  - source_labels: [ __metrics_path__ ]
-    regex: .*
-    target_label: __metrics_path__
-    replacement: /backend1/actuator/prometheus
   - source_labels: [ __address__ ]
-    regex: dev\.trit\.app:80
+    regex: '.*'
     target_label: instance
-    replacement: backend-qa-backend-1
+    replacement: 'backend-qa-backend-1'
 
-  - source_labels: [ __metrics_path__ ]
-    regex: .*
-    target_label: __metrics_path__
-    replacement: /backend2/actuator/prometheus
+- job_name: 'backend-2'
+  metrics_path: '/backend2/actuator/prometheus'
+  static_configs:
+  - targets: [ 'dev.trit.app:80' ]
+  relabel_configs:
   - source_labels: [ __address__ ]
-    regex: dev\.trit\.app:80
+    regex: '.*'
     target_label: instance
-    replacement: backend-qa-backend-2
+    replacement: 'backend-qa-backend-2'
 
-# 🔹 Node Exporter - 호스트 메트릭
 - job_name: 'monitoring-host'
   static_configs:
-  - targets:
-    - node-exporter:9100
-    - ip-172-31-43-29.ap-northeast-2.compute.internal:9111
+  - targets: [ 'node-exporter:9100' ]
+    labels:
+      instance: 'monitoring'
+  - targets: [ 'ip-172-31-43-29.ap-northeast-2.compute.internal:9111' ]
   relabel_configs:
   - source_labels: [ __address__ ]
-    regex: node-exporter:9100
+    regex: 'ip-172-31-43-29.*'
     target_label: instance
-    replacement: monitoring
-  - source_labels: [ __address__ ]
-    regex: ip-172-31-43-29.*:9111
-    target_label: instance
-    replacement: backend-qa-host
+    replacement: 'backend-qa-host'
 
-# 🔹 cAdvisor - Docker 컨테이너 메트릭
 - job_name: 'monitoring-container'
   static_configs:
-  - targets:
-    - cadvisor:8080
-    - ip-172-31-43-29.ap-northeast-2.compute.internal:8085
+  - targets: [ 'cadvisor:8080' ]
+    labels:
+      instance: 'monitoring'
+  - targets: [ 'ip-172-31-43-29.ap-northeast-2.compute.internal:8085' ]
   relabel_configs:
   - source_labels: [ __address__ ]
-    regex: cadvisor:8080
+    regex: 'ip-172-31-43-29.*'
     target_label: instance
-    replacement: monitoring
-  - source_labels: [ __address__ ]
-    regex: ip-172-31-43-29.*:8085
-    target_label: instance
-    replacement: backend-qa-docker
+    replacement: 'backend-qa-docker'
