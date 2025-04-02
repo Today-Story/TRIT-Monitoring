@@ -8,7 +8,7 @@ global:
   query_log_file: query_log_file.log
 
 rule_files:
-- "rule.yml"
+- "/prometheus/rule.yml"
 
 alerting:
   alertmanagers:

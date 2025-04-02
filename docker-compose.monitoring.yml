@@ -40,7 +40,7 @@ services:
       - '--web.console.templates=/usr/share/prometheus/consoles'
     user: root
     volumes:
-      - ./data/prometheus:/prometheus
+      - ./data/prometheus/rule.yml:/etc/prometheus/rule.yml
       - ./data/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
     networks:
       - trit-monitoring
