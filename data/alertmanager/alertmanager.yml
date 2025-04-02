@@ -1,0 +1,14 @@
+global:
+  resolve_timeout: 5m
+
+route:
+  receiver: 'slack-notifications'
+
+receivers:
+- name: 'slack-notifications'
+  slack_configs:
+  - send_resolved: true
+    channel: '#monitoring-alerts'
+    username: 'PrometheusBot'
+    icon_emoji: ':rotating_light:'
+    api_url: 'https://hooks.slack.com/services/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'

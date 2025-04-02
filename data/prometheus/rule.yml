@@ -1,18 +1,111 @@
 groups:
-- name: example
+- name: system-health-rules
   rules:
+  # 1. 인스턴스 다운
   - alert: InstanceDown
     expr: up == 0
+    for: 2m
+    labels:
+      severity: critical
+    annotations:
+      summary: "❌ {{ $labels.instance }} DOWN"
+      description: "{{ $labels.instance }} of job {{ $labels.job }} is unreachable for more than 2 minutes."
+
+  # 2. Node Exporter - CPU 사용률 80% 이상
+  - alert: HighCPUUsage
+    expr: |
+      100 - (avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[2m])) * 100) > 80
+    for: 2m
+    labels:
+      severity: warning
+    annotations:
+      summary: "⚠️ High CPU usage on {{ $labels.instance }}"
+      description: "CPU usage is above 80% for more than 2 minutes. Current value: {{ $value | printf \"%.2f\" }}%"
+
+  # 3. Node Exporter - 메모리 사용률 80% 이상
+  - alert: HighMemoryUsage
+    expr: |
+      (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100 > 80
+    for: 2m
+    labels:
+      severity: warning
+    annotations:
+      summary: "⚠️ High memory usage on {{ $labels.instance }}"
+      description: "Memory usage is above 80%. Current value: {{ $value | printf \"%.2f\" }}%"
+
+  # 4. Node Exporter - 디스크 사용률 90% 이상
+  - alert: HighDiskUsage
+    expr: |
+      (node_filesystem_size_bytes - node_filesystem_free_bytes) / node_filesystem_size_bytes * 100 > 90
     for: 5m
     labels:
-      severity: page
+      severity: warning
     annotations:
-      summary: "Instance {{ $labels.instance }} down"
-      description: "{{ $labels.instance }} of job {{ $labels.job }} has been down for more than 5 minutes."
+      summary: "💾 High disk usage on {{ $labels.instance }}"
+      description: "Disk usage is above 90%. Current value: {{ $value | printf \"%.2f\" }}%"
 
-  - alert: APIHighRequestLatency
-    expr: api_http_request_latencies_second{quantile="0.5"} > 1
-    for: 10m
+  # 5. cAdvisor - 컨테이너 CPU 사용률 80% 이상
+  - alert: HighContainerCPU
+    expr: rate(container_cpu_usage_seconds_total[1m]) * 100 > 80
+    for: 1m
+    labels:
+      severity: warning
     annotations:
-      summary: "High request latency on {{ $labels.instance }}"
-      description: "{{ $labels.instance }} has a median request latency above 1s (current value: {{ $value }}s)"
+      summary: "⚠️ High container CPU usage on {{ $labels.instance }}"
+      description: "Container CPU usage is above 80%. Current: {{ $value | printf \"%.2f\" }}%"
+
+  # 6. cAdvisor - 컨테이너 메모리 사용량 90% 이상
+  - alert: HighContainerMemory
+    expr: (container_memory_usage_bytes / container_spec_memory_limit_bytes) * 100 > 90
+    for: 1m
+    labels:
+      severity: warning
+    annotations:
+      summary: "🚨 High container memory usage on {{ $labels.instance }}"
+      description: "Container memory usage is above 90%. Current: {{ $value | printf \"%.2f\" }}%"
+
+- name: application-alerts
+  rules:
+  # 7. Spring Boot - 요청 지연 시간 (avg > 1.5s)
+  - alert: HighRequestLatency
+    expr: rate(http_server_requests_seconds_sum[1m]) / rate(http_server_requests_seconds_count[1m]) > 1.5
+    for: 1m
+    labels:
+      severity: warning
+    annotations:
+      summary: "🐢 High average request latency on {{ $labels.instance }}"
+      description: "Average request latency is above 1.5s. Current: {{ $value | printf \"%.2f\" }}s"
+
+  # 8. Spring Boot - 에러율 (5xx 비율)
+  - alert: HighErrorRate
+    expr: |
+      rate(http_server_requests_seconds_count{status=~"5.."}[1m]) 
+      / rate(http_server_requests_seconds_count[1m]) > 0.2
+    for: 2m
+    labels:
+      severity: critical
+    annotations:
+      summary: "🔥 High 5xx error rate on {{ $labels.instance }}"
+      description: "More than 20% of HTTP responses are 5xx errors. Current: {{ $value | printf \"%.2f\" }}"
+
+- name: prometheus-health
+  rules:
+  # 9. Prometheus - Scrape 실패
+  - alert: PrometheusScrapeFailed
+    expr: scrape_duration_seconds > 5
+    for: 30s
+    labels:
+      severity: warning
+    annotations:
+      summary: "❗ Scrape duration too long on {{ $labels.instance }}"
+      description: "Prometheus is taking more than 5 seconds to scrape metrics. Current: {{ $value }}s"
+
+  # 10. Prometheus - Target 수집 실패율
+  - alert: TargetScrapeError
+    expr: increase(prometheus_target_scrapes_sample_exemplar_errors_total[1m]) > 0
+    for: 1m
+    labels:
+      severity: warning
+    annotations:
+      summary: "⚠️ Prometheus scrape error on {{ $labels.instance }}"
+      description: "Prometheus scrape error occurred in last 1m"
