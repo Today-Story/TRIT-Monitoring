@@ -59,3 +59,23 @@ scrape_configs:
     regex: 'ip-172-31-43-29.*'
     target_label: instance
     replacement: 'backend-qa-docker'
+
+- job_name: 'prod-backend-1'
+  metrics_path: '/backend1/actuator/prometheus'
+  static_configs:
+  - targets: [ 'api.trit.app:80' ]
+  relabel_configs:
+  - source_labels: [ __address__ ]
+    regex: '.*'
+    target_label: instance
+    replacement: 'backend-prod-backend-1'
+
+- job_name: 'prod-backend-2'
+  metrics_path: '/backend2/actuator/prometheus'
+  static_configs:
+  - targets: [ 'api.trit.app:80' ]
+  relabel_configs:
+  - source_labels: [ __address__ ]
+    regex: '.*'
+    target_label: instance
+    replacement: 'backend-prod-backend-2'
