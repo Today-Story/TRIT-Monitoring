@@ -43,6 +43,7 @@ scrape_configs:
       instance: 'monitoring'
   - targets: [ 'ip-172-31-3-254.ec2.internal:9111' ]
   - targets: [ 'ip-172-31-15-177.ec2.internal:9111' ]
+  - targets: [ 'ip-172-31-66-8.ec2.internal:9100' ]
   relabel_configs:
   - source_labels: [ __address__ ]
     regex: 'ip-172-31-3-254.*'
@@ -52,6 +53,10 @@ scrape_configs:
     regex: 'ip-172-31-15-177.*'
     target_label: instance
     replacement: 'backend-prod-host'
+  - source_labels: [ __address__ ]
+    regex: 'ip-172-31-66-8.*'
+    target_label: instance
+    replacement: 'rag-host'
 
 - job_name: 'monitoring-container'
   static_configs:
@@ -60,6 +65,7 @@ scrape_configs:
       instance: 'monitoring'
   - targets: [ 'ip-172-31-3-254.ec2.internal:8085' ]
   - targets: [ 'ip-172-31-15-177.ec2.internal:8085' ]
+  - targets: [ 'ip-172-31-66-8.ec2.internal:8085' ]
   relabel_configs:
   - source_labels: [ __address__ ]
     regex: 'ip-172-31-3-254.*'
@@ -69,6 +75,10 @@ scrape_configs:
     regex: 'ip-172-31-15-177.*'
     target_label: instance
     replacement: 'backend-prod-docker'
+  - source_labels: [ __address__ ]
+    regex: 'ip-172-31-66-8.*'
+    target_label: instance
+    replacement: 'rag-docker'
 
 - job_name: 'prod-backend-1'
   metrics_path: '/backend1/actuator/prometheus'
