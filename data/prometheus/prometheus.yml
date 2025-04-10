@@ -43,7 +43,7 @@ scrape_configs:
       instance: 'monitoring'
   - targets: [ 'ip-172-31-3-254.ec2.internal:9111' ]
   - targets: [ 'ip-172-31-15-177.ec2.internal:9111' ]
-  - targets: [ 'ip-172-31-66-8.ec2.internal:9100' ]
+  - targets: [ 'ip-172-31-66-8.ec2.internal:9111' ]
   relabel_configs:
   - source_labels: [ __address__ ]
     regex: 'ip-172-31-3-254.*'
