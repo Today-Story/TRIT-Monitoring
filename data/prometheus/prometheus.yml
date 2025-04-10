@@ -41,15 +41,15 @@ scrape_configs:
   - targets: [ 'node-exporter:9100' ]
     labels:
       instance: 'monitoring'
-  - targets: [ 'ip-172-31-43-29.ap-northeast-2.compute.internal:9111' ]
-  - targets: [ 'ip-172-31-41-204.ap-northeast-2.compute.internal:9111' ]
+  - targets: [ 'ip-172-31-3-254.ec2.internal:9111' ]
+  - targets: [ 'ip-172-31-15-177.ec2.internal:9111' ]
   relabel_configs:
   - source_labels: [ __address__ ]
-    regex: 'ip-172-31-43-29.*'
+    regex: 'ip-172-31-3-254.*'
     target_label: instance
     replacement: 'backend-qa-host'
   - source_labels: [ __address__ ]
-    regex: 'ip-172-31-41-204.*'
+    regex: 'ip-172-31-15-177.*'
     target_label: instance
     replacement: 'backend-prod-host'
 
@@ -58,15 +58,15 @@ scrape_configs:
   - targets: [ 'cadvisor:8080' ]
     labels:
       instance: 'monitoring'
-  - targets: [ 'ip-172-31-43-29.ap-northeast-2.compute.internal:8085' ]
-  - targets: [ 'ip-172-31-41-204.ap-northeast-2.compute.internal:8085' ]
+  - targets: [ 'ip-172-31-3-254.ec2.internal:8085' ]
+  - targets: [ 'ip-172-31-15-177.ec2.internal:8085' ]
   relabel_configs:
   - source_labels: [ __address__ ]
-    regex: 'ip-172-31-43-29.*'
+    regex: 'ip-172-31-3-254.*'
     target_label: instance
     replacement: 'backend-qa-docker'
   - source_labels: [ __address__ ]
-    regex: 'ip-172-31-41-204.*'
+    regex: 'ip-172-31-15-177.*'
     target_label: instance
     replacement: 'backend-prod-docker'
 
